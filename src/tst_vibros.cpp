@@ -116,7 +116,7 @@ public:
 
 private:
     Vibro vibro;
-    static const unsigned SAMPLES = 4410;
+    static const unsigned SAMPLES = 882;
     static const unsigned SAMPLE_RATE = 44100;
     sf::Int16 raw[SAMPLES];
     int dbgcnt;
@@ -187,6 +187,32 @@ int main()
             break;
         case '4':
             p = p0 * 4.0/5.0;
+            break;
+		case '5':
+			p = p0 * 0.52973154717964763228091264747317;
+			break;
+		case '6':
+			p = p0 * 0.56123102415468649071676652483959;
+			break;
+		case '7':
+			p = p0 * 0.59460355750136053335874998528024;
+			break;
+		case '8':
+			p = p0 * 0.62996052494743658238360530363911;
+			break;
+		case '9':
+			p = p0 * 0.70710678118654752440084436210485;
+			break;
+		case '0':
+			p = p0 * 0.84089641525371454303112547623321;
+			break;
+        case '-':
+            p = p0 * 9.0/10.0;
+			//p = p0 * 89.0/100.0;
+            break;
+        case '=':
+            p = p0 * 19.0/20.0;
+			//p = p0 * 943.0/1000.0;
             break;
         }
     }
