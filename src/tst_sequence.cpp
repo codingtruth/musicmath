@@ -214,11 +214,16 @@ public:
             is_end_of_sequence = true;
             return false;
         }
-	if (note->len < 0 && note->pitch[3]-- > note->len) {
+	if (note->len < 0 ) {
+            if (--note->pitch[3] > note->len) {
                 std::cout << "note " << pos_n << "  pos " << sequence->notes[pos_n].pos << "\n";
 		pos_n = note->pitch[0];
 		pos_t = ((double)sequence->notes[pos_n].pos);
 	        note = &sequence->notes[pos_n];
+            } else {
+                pos_n++;
+                note = &sequence->notes[pos_n];                
+            }
 	}
 		
         std::cout << "note " << pos_n << "  pos " << sequence->notes[pos_n].pos << "\n";
@@ -533,12 +538,20 @@ Note fnl_1_notes[] =
 { 234,  2,  {   1,  2,  -3,  4}	},
 */
 
-{ 472, 28,  {   4,  5,  -3,  4}	},
-{ 500, 32,  {  -3,  4,  -3,  4}	},
+//{ 472, 28,  {   4,  5,  -3,  4}	},
+//{ 500, 32,  {  -3,  4,  -3,  4}	},
+{ 472, 28,  {  -1,  2,  -3,  4}	},
+
+{ 500, 32,  {  -5,  6,   4,  5}	},
+{ 500, 32,  { -11, 12,   1,  2}	},
+
+    { 532,  -6,  {   0,  0,   0,  0}	},
+
+{ 532, 76,  {  19, 20,   1,  2}	},
+{ 532, 76,  {   1,  1,  -3,  4}	},
 
 
-    { 532,  -5,  {   0,  0,   0,  0}	},
-    { 532,   0,  {   0,  0,   0,  0}	},
+    { 608,   0,  {   0,  0,   0,  0}	},
 
 };
 #else
@@ -551,7 +564,7 @@ int main()
 {
     //fnl_1_sequence.base_p = 2 * M_PI / (1573.2 * 32.0);
     fnl_1_sequence.base_p = 2 * M_PI / (440.0 * 32.0);
-    fnl_1_sequence.base_t =  (17.6 / 12.0 * (3600.0 / (1080.0 * 76.0)));//(60.0 / 984.0);
+    fnl_1_sequence.base_t =  (17.2 / 12.0 * (3600.0 / (1080.0 * 76.0)));//(60.0 / 984.0);
     fnl_1_sequence.notes  = fnl_1_notes;
     fnl_1_sequence.notes_num = sizeof(fnl_1_notes)/sizeof(fnl_1_notes[0]);
 
@@ -569,7 +582,9 @@ int main()
     l = 1000.0 * M_PI*M_PI;
     double p;
     p = p0;
-    stream.save_sequence_to_file(&fnl_1_sequence, "fnl_1.wav", MyStream::SAMPLE_RATE);
+
+    stream.save_sequence_to_file(&fnl_1_sequence, "fnl_2.wav", MyStream::SAMPLE_RATE);
+
     stream.play_sequence(&fnl_1_sequence);
     stream.play();
 
