@@ -141,6 +141,10 @@ class Sequencer {
     int pos_n;
     double dt;
     bool is_zero_timestep;
+    bool is_end_of_sequence;
+    sf::OutputSoundFile outfile;
+    static const int file_buf_size = 1024 * 512;
+    sf::Int16 file_buf[file_buf_size];
 public:
     Sequencer(double dt) : vibro(dt)
     {
@@ -153,14 +157,36 @@ public:
         pos_t = 0.0;
         pos_n = 0;
     }
+    void save_sequence_to_file(Sequence *sequence, const char *filename, unsigned int sample_rate)
+    {
+        double a;
+        int16_t n;
+        uint32_t len, pos;
+        outfile.openFromFile(filename, sample_rate, 1);
+        start(sequence);
+        pos = 0;
+        while (!is_end_of_sequence) {
+            a = timestep();
+            n = (int16_t)(((double)0x7ffe) * a);
+            file_buf[pos++] = n;
+            if (pos == file_buf_size) {
+                outfile.write(file_buf, pos);
+                pos = 0;
+            }
+        }
+        outfile.write(file_buf, pos);
+    }
     void start(Sequence *sequence)
     {
         Sequencer::sequence = sequence;
         reset();
         is_zero_timestep = true;
+        is_end_of_sequence = false;
     }
     double timestep(void)
     {
+        if (is_end_of_sequence)
+            return 0.0;
         if (is_zero_timestep) {
             play_next_note();
             is_zero_timestep = false;
@@ -183,9 +209,15 @@ public:
         double p, l;
         Note *note;
         note = &sequence->notes[pos_n];
-	if (note->len == -1) {
-		pos_n = 0;
-		pos_t = 0.0;
+        if (note->len == 0) {
+            std::cout << "note " << pos_n << "  pos " << sequence->notes[pos_n].pos << "\n";
+            is_end_of_sequence = true;
+            return false;
+        }
+	if (note->len < 0 && note->pitch[3]-- > note->len) {
+                std::cout << "note " << pos_n << "  pos " << sequence->notes[pos_n].pos << "\n";
+		pos_n = note->pitch[0];
+		pos_t = ((double)sequence->notes[pos_n].pos);
 	        note = &sequence->notes[pos_n];
 	}
 		
@@ -229,15 +261,19 @@ public:
         //vibro.reset();
         vibro.pick(p, l);
     }
+    void save_sequence_to_file(Sequence *sequence, const char *filename, unsigned int sample_rate)
+    {
+        sequencer.save_sequence_to_file(sequence, filename, sample_rate);
+    }
     void play_sequence(Sequence *sequence)
     {
         sequencer.start(sequence);
     }
+    static const unsigned SAMPLE_RATE = 44100;
 private:
     Vibro vibro;
     Sequencer sequencer;
     static const unsigned SAMPLES = 1024;
-    static const unsigned SAMPLE_RATE = 44100;
     sf::Int16 raw[SAMPLES];
     int dbgcnt;
     int zerocnt;
@@ -501,7 +537,9 @@ Note fnl_1_notes[] =
 { 500, 32,  {  -3,  4,  -3,  4}	},
 
 
-    { 532,  -1,  {   0,  0,   0,  0}	}
+    { 532,  -5,  {   0,  0,   0,  0}	},
+    { 532,   0,  {   0,  0,   0,  0}	},
+
 };
 #else
 
@@ -513,7 +551,7 @@ int main()
 {
     //fnl_1_sequence.base_p = 2 * M_PI / (1573.2 * 32.0);
     fnl_1_sequence.base_p = 2 * M_PI / (440.0 * 32.0);
-    fnl_1_sequence.base_t =  (16.0 / 12.0 * (3600.0 / (1080.0 * 76.0)));//(60.0 / 984.0);
+    fnl_1_sequence.base_t =  (17.6 / 12.0 * (3600.0 / (1080.0 * 76.0)));//(60.0 / 984.0);
     fnl_1_sequence.notes  = fnl_1_notes;
     fnl_1_sequence.notes_num = sizeof(fnl_1_notes)/sizeof(fnl_1_notes[0]);
 
@@ -531,7 +569,7 @@ int main()
     l = 1000.0 * M_PI*M_PI;
     double p;
     p = p0;
-
+    stream.save_sequence_to_file(&fnl_1_sequence, "fnl_1.wav", MyStream::SAMPLE_RATE);
     stream.play_sequence(&fnl_1_sequence);
     stream.play();
 
