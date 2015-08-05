@@ -69,13 +69,13 @@ public:
     {
         x = a * (
 	      sin(t / p) 
-		+ 0.005 * sin(t * 0.5 / p) 
-		+ 0.01 * sin(t * 2.0 / p) 
-		+ 0.002 * sin(t * 3.0 / p) 
-		+ 0.004 * sin(t * 4.0 / p) 
-		+ 0.002 * sin(t * 5.0 / p)
-//		+ 0.005 * sin(t * 6.0 / p)
-//		+ 0.01 * sin(t * 8.0 / p) 
+		+ 0.01 * sin(t * 0.5 / p) 
+		+ 0.16 * sin(t * 2.0 / p) 
+		+ 0.0008 * sin(t * 3.0 / p) 
+		+ 0.08 * sin(t * 4.0 / p) 
+		+ 0.0004 * sin(t * 5.0 / p)
+		+ 0.0002 * sin(t * 6.0 / p)
+		+ 0.002 * sin(t * 8.0 / p) 
 		//+ (pow(2.0, -abs(tan(t / p))) - 1.0)
 		);
         t = t + dt;
@@ -298,7 +298,7 @@ private:
         sf::Int16 x, xmax = 0x7ffe;
         double a;
         for (int i=0; i < SAMPLES; i++) {
-            a = (vibro.timestep() + sequencer.timestep()) / 2.0;
+            a = (vibro.timestep() + sequencer.timestep());// / 2.0;
             x = (sf::Int16) (((double)xmax) * a);
             raw[i] = x;
         }
@@ -536,10 +536,14 @@ Note fnl_1_notes[] =
 
 { 354,  4,  {   1,  2,   1,  1}	},
 { 358,  4,  { -11, 12,   1,  1}	},
-{ 362,  4,  {  10, 10,  -9, 12}	},
-{ 366,  4,  {   9, 10,  -9, 12}	},
-{ 370,  4,  {  -1,  4,  -9, 12}	},
-{ 374,  4,  {   3,  4,  -9, 12}	},
+{ 362,  4,  {  -3,  4,   1,  1}	},
+{ 366,  4,  { -11, 12,   1,  1}	},
+{ 370,  4,  {   1,  2,   1,  1}	},
+{ 374,  4,  {   9, 10,   1,  2}	},
+//.{ 362,  4,  {  10, 10,  -9, 12}	},
+//.{ 366,  4,  {   9, 10,  -9, 12}	},
+//.{ 370,  4,  {  -1,  4,  -9, 12}	},
+//.{ 374,  4,  {   3,  4,  -9, 12}	},
 
 //#endif
 
@@ -715,7 +719,7 @@ int main()
     double p;
     p = p0;
 
-    stream.save_sequence_to_file(&fnl_1_sequence, "fnl_4.wav", MyStream::SAMPLE_RATE);
+    stream.save_sequence_to_file(&fnl_1_sequence, "fnl_5.wav", MyStream::SAMPLE_RATE);
 
     stream.play_sequence(&fnl_1_sequence);
     stream.play();
